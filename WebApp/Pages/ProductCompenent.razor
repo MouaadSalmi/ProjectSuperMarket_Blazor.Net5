@@ -1,0 +1,66 @@
+﻿@page "/products"
+@attribute [Authorize(Policy = "AdminOnly")]
+
+@inject NavigationManager NavigationManager
+@inject IViewProduct ViewProducts
+@inject ISelectByIdCategory SelectCategoryById
+@inject IDeleteProduct DeleteProduct
+
+<h3>Products List</h3>
+<br />
+@if (products != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Product Category</th>
+                <th>Product Name</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in products)
+            {
+                <tr>
+                    <td>@SelectCategoryById.Execute(product.CategoryId.Value)?.Name</td>
+                    <td>@product.Name</td>
+                    <td>@(Math.Round(product.Price.Value, 2))</td>
+                    <td>@product.Quantity</td>
+                    <td>
+                        <button type="button" class="btn btn-link" @onclick="@(()=>OnEditProduct(product))">Edit</button>
+                        &nbsp;
+                        <button type="button" class="btn btn-link" @onclick="@(()=>OnDeleteProduct(product.ProductId))">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<br />
+<button type="button" @onclick="OnClickAddProduct" class="btn btn-primary">Add Product</button>
+
+@code {
+    private IEnumerable<Product> products;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        products = ViewProducts.Execute();
+    }
+
+    public void OnEditProduct(Product product)
+    {
+        NavigationManager.NavigateTo($"/editproduct/{product.ProductId}");
+    }
+
+    public void OnDeleteProduct(int id)
+    {
+        DeleteProduct.Execute(id);
+    }
+    public void OnClickAddProduct()
+    {
+        NavigationManager.NavigateTo("/addproduct");
+    }
+}

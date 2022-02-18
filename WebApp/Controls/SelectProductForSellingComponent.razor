@@ -1,0 +1,72 @@
+﻿@inject IViewCategory ViewCategory
+@inject IGetProductsByCategoryId GetProductsByCategoryId
+
+@* Afficher les produits par catégories *@
+<div class="form-group">
+    <label for="category">Category</label>
+    <select id="category" @bind="SelectByIdCategoryById" class="form-control">
+        <option selected></option>
+        @foreach (var cat in categories)
+        {
+            <option value="@cat.CategoryId">@cat.Name</option>
+        }
+    </select>
+</div>
+@if (productsInCategory != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Prod Name</th>
+                <th>Quantité Restante</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var prod in productsInCategory)
+            {
+            <tr @onclick="@(() => OnSelectProduct(prod))"
+                style="@(prod.ProductId == selectedProductId ? "background-color:beige; cursor:pointer;" : "cursor:pointer")">
+                <td>
+                    @prod.Name
+                </td>
+                <td>
+                    @prod.Quantity
+                </td>
+            </tr>
+            }
+
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public EventCallback<Product> OnProductSelected { get; set; }
+    private IEnumerable<Product> productsInCategory;
+    private int selectedProductId;
+    private int _SelectByIdCategoryById;
+
+    public int SelectByIdCategoryById
+    {
+        get { return _SelectByIdCategoryById; }
+        set
+        {
+            _SelectByIdCategoryById = value;
+            productsInCategory = GetProductsByCategoryId.Execute(value);
+            StateHasChanged();
+        }
+    }
+
+    private IEnumerable<Category> categories;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        categories = ViewCategory.Execute();
+    }
+    private void OnSelectProduct(Product product)
+    {
+        OnProductSelected.InvokeAsync(product);
+        if (product != null) selectedProductId = product.ProductId;
+    }
+}

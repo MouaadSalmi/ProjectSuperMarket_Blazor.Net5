@@ -1,0 +1,42 @@
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <Authorizing>
+                    <span>Your spinner goes here</span>
+                </Authorizing>
+                <NotAuthorized>
+                    @if (context.User.Identity.Name == "Admin@Admin.com")
+                    {
+                        <div class="alert">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <strong>Warning!</strong> Only Cashier has access to this Page.
+                        </div>
+                    }
+                    @if (context.User.Identity.Name == "Cashier@Cashier.com")
+                    {
+                        <div class="alert">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <strong>Warning!</strong> Only Admin has access to this Page.
+                        </div>
+                    }
+                    @if (!context.User.Identity.IsAuthenticated)
+                    {
+                        <div class="alert">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <strong>Warning!</strong> You Must To Loggin.
+                            <LoginDisplay></LoginDisplay>
+                        </div>
+                    }
+
+                </NotAuthorized>
+            </AuthorizeRouteView>
+        </Found>
+        <NotFound>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p>Sorry, there's nothing at this address.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>
+
